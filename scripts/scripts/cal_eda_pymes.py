@@ -1,0 +1,131 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import mapclassify as mc
+import warnings
+
+warnings.filterwarnings('ignore')
+
+class EdaEspacial:
+    """
+    Clase universal para Análisis Exploratorio de Datos (EDA) adaptada
+    al análisis espacial de Spillovers y Cadenas Globales de Valor.
+    """
+    
+    def __init__(self, filepath):
+        self.filepath = filepath
+        self.df = self._load_data()
+        
+    def _load_data(self):
+        """Carga los datos asegurando el formato estricto de la clave geográfica."""
+        df = pd.read_csv(self.filepath, dtype={'cve_geo': str})
+        
+        # El seguro de vida espacial: rellenar con ceros a la izquierda (Ej. "19039")
+        df['cve_geo'] = df['cve_geo'].astype(str).str.zfill(5)
+        
+        print(f"✅ Base cargada exitosamente: {df.shape[0]} municipios y {df.shape[1]} variables.")
+        return df
+
+    def estadistica_descriptiva(self, variables):
+        """Genera un resumen estadístico para detectar dispersión."""
+        print("\n📊 --- ESTADÍSTICA DESCRIPTIVA ---")
+        # Filtramos solo las variables que existen en el dataframe
+        vars_existentes = [v for v in variables if v in self.df.columns]
+        desc = self.df[vars_existentes].describe().T
+        # Formato numérico para facilitar lectura
+        print(desc[['mean', 'std', 'min', '50%', 'max']].round(3))
+        return desc
+
+    def top_municipios(self, variable, n=5):
+        """Revela los municipios con mayor concentración en una variable (Hotspots absolutos)."""
+        if variable in self.df.columns:
+            print(f"\n🏆 --- TOP {n} MUNICIPIOS EN: {variable} ---")
+            top = self.df[['nom_mun', variable]].sort_values(by=variable, ascending=False).head(n)
+            # Imprimir bonito
+            for index, row in top.iterrows():
+                print(f"   📍 {row['nom_mun']}: {row[variable]:,.2f}")
+        else:
+            print(f"⚠️ La variable {variable} no existe en la base.")
+
+    def deteccion_outliers_cajas(self, variables):
+        """Muestra la hiperconcentración visualmente mediante Boxplots."""
+        vars_existentes = [v for v in variables if v in self.df.columns]
+        if not vars_existentes: return
+        
+        plt.figure(figsize=(12, 6))
+        sns.boxplot(data=self.df[vars_existentes], orient='h', palette="Set2")
+        plt.title("Detección de Hiperconcentración Territorial (Outliers)")
+        plt.xlabel("Valor")
+        plt.tight_layout()
+        plt.show()
+
+    def histogramas_comparativos(self, var1, var2):
+        """Compara la distribución de dos variables mediante un Scatter Plot."""
+        if var1 in self.df.columns and var2 in self.df.columns:
+            plt.figure(figsize=(8, 6))
+            sns.scatterplot(data=self.df, x=var1, y=var2, hue=var1, size=var1, sizes=(50, 400), palette="viridis", legend=False)
+            
+            # Anotar los nombres de los municipios más altos
+            top_mun = self.df.sort_values(by=var1, ascending=False).head(3)
+            for _, row in top_mun.iterrows():
+                plt.text(row[var1], row[var2], f" {row['nom_mun']}", fontsize=9, weight='bold')
+
+            plt.title(f"Relación Territorial: {var1} vs {var2}")
+            plt.xlabel(var1)
+            plt.ylabel(var2)
+            plt.grid(True, linestyle="--", alpha=0.6)
+            plt.tight_layout()
+            plt.show()
+
+    def cortes_naturales(self, variable, k=5):
+        """Usa Fisher-Jenks para encontrar los saltos reales en los datos para los mapas."""
+        if variable in self.df.columns:
+            # Filtramos los ceros para que no sesguen los cortes
+            datos_limpios = self.df[self.df[variable] > 0][variable].dropna()
+            if len(datos_limpios) > k:
+                natural_breaks = mc.FisherJenks(datos_limpios, k=k)
+                print(f"\n🗺️ --- CORTES NATURALES (Fisher-Jenks) PARA MAPA DE: {variable} ---")
+                print(natural_breaks)
+            else:
+                print(f"\n⚠️ No hay suficientes municipios con datos > 0 para hacer cortes en {variable}.")
+
+# ==========================================
+# BLOQUE DE EJECUCIÓN (MAIN) - ENFOQUE: PYMES LOCALES
+# ==========================================
+if __name__ == "__main__":
+    # 1. Ruta del archivo base
+    ruta_archivo = 'Base_Ancha_NL_Nearshoring.csv' 
+    
+    # 2. Instanciamos la clase
+    eda = EdaEspacial(filepath=ruta_archivo)
+    
+    # ---------------------------------------------------------
+    # EL PACIENTE: PYMES DE SERVICIOS PROFESIONALES Y TÉCNICOS (SCIAN 541) 2023
+    # ---------------------------------------------------------
+    # Variables de interés (El Marco Teórico en acción):
+    vars_pyme_541 = [
+        'ue_541_pyme_2023',          # Masa crítica: ¿Cuántas PyMEs de servicios hay?
+        'ac_cap_541_pyme_2023',      # Lascurain: Capacidad de Absorción (Capital por trabajador)
+        'tasa_formal_541_pyme_2023', # Montaño: Modernización Laboral (Formalidad)
+        'sal_med_541_pyme_2023',     # Montaño: Calidad salarial
+        'ui_index_541_pyme_2023'     # Gereffi: Índice de Ascenso Industrial (Upgrading)
+    ]
+    
+    # A) Ver el resumen estadístico (¿Cómo está la salud general de las PyMEs?)
+    eda.estadistica_descriptiva(vars_pyme_541)
+    
+    # B) Los refugios del talento local (Top 5 en Absorción y Upgrading)
+    eda.top_municipios('ue_541_pyme_2023', n=5)
+    eda.top_municipios('ui_index_541_pyme_2023', n=5)
+    
+    # C) Visualizar la hiperconcentración en Cajas (Boxplots)
+    eda.deteccion_outliers_cajas(['ue_541_pyme_2023'])
+    
+    # D) Probar la Teoría de Lascurain y Gereffi: Scatter Plot
+    # ¿A mayor capacidad de absorción previa (capital), mayor es el ascenso industrial (Upgrading)?
+    eda.histogramas_comparativos('ac_cap_541_pyme_2023', 'ui_index_541_pyme_2023')
+    
+    # E) Scatter de Modernización Laboral (Montaño Hirose)
+    # Tasa de formalidad vs Salario Medio
+    eda.histogramas_comparativos('tasa_formal_541_pyme_2023', 'sal_med_541_pyme_2023')
