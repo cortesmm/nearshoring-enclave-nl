@@ -62,17 +62,17 @@ De igual forma, basado en **Lascurain y Fernández**, incorporé un *proxy* mate
 
 Antes de manipular, debo saber exactamente a qué me estoy enfrentando. El EDA resulta más amigo cuando, mediante herramientas de código, podemos pedirle a Python un escaneo integral.
 
-![Distribución de Variables](img/fig01_boxplots_distribucion.png)
+![Distribución de Variables](img/fig01_boxplots_distribucion.png.png)
 
 Al fijarme en la columna de la mediana de las estadísticas descriptivas, noté que el resultado es exactamente cero para casi todas las variables. En un sentido práctico, **en al menos la mitad de los municipios de Nuevo León, la industria automotriz tractora no existe**. Las barreras de entrada son tan altas que la Inversión Extranjera Directa (IED) crea monopolios territoriales.
 
 Llama la atención la media (`0.067`) del *VA_Ratio* de las tractoras. En promedio, por cada 100 pesos que generan estas gigantes automotrices, **solo agregan 6.7 pesos de valor local**. El resto son insumos importados. Dussel tiene razón: el nearshoring se está comportando como una **Maquila 2.0**.
 
-![Capital vs Valor Agregado](img/fig02_scatter_capital_va.png)
+![Capital vs Valor Agregado](img/fig02_scatter_capital_va.png.png)
 
 Esta gráfica materializa la "Paradoja del Enclave". **Apodaca** jala la escala de inversión hasta casi $13,497 millones de pesos, pero opera como un sistema cerrado con bajísimo valor agregado. Por el contrario, **Guadalupe** representa el *Upgrading* (ascenso industrial); su madurez industrial histórica le permite anclar el desarrollo en el territorio, reteniendo mucho más valor.
 
-![Salarios vs Formalidad](img/fig03_scatter_salarios_formalidad.png)
+![Salarios vs Formalidad](img/fig03_scatter_salarios_formalidad.png.png)
 
 Cuando analizamos al talento local (PyMEs), la desconexión territorial es notable. Las fábricas gigantes se instalan en la periferia (Apodaca, Escobedo), pero las PyMEs formales y de altos salarios están atrincheradas en **San Pedro, Monterrey y Guadalupe**. Montaño Hirose nos advierte de esto: las multinacionales exigen "flexibilidad laboral", lo que se traduce en precarización para las PyMEs periféricas que intentan sobrevivir compitiendo por precios.
 
@@ -82,11 +82,11 @@ Cuando analizamos al talento local (PyMEs), la desconexión territorial es notab
 
 Para medir si existía una correlación geográfica, calculé el Índice de Moran y los Mapas LISA (*Local Indicators of Spatial Association*).
 
-![LISA Tractoras](img/fig04_lisa_capital_tractora.png)
+![LISA Tractoras](img/fig04_lisa_capital_tractora.png.png)
 
 **El Choque Exógeno (Tractoras):** El Índice de Moran Global es fuertemente positivo ($p=0.02$). El mapa nos muestra un **Clúster Rojo (High-High)** en Apodaca y Escobedo. Esto confirma que el Nearshoring responde estrictamente a *economías de aglomeración*. Las multinacionales no buscan dispersarse, compiten por estar pegadas compartiendo infraestructura. Sus vecinos inmediatos conforman un Anillo Azul Claro (Low-High), confirmando un **Efecto Sombra o Desplazamiento territorial**.
 
-![LISA Upgrading PyME](img/fig05_lisa_upgrading_pyme.png)
+![LISA Upgrading PyME](img/fig05_lisa_upgrading_pyme.png.png)
 
 **El Ascenso Industrial (PyMEs):** El mapa de las PyMEs es un océano gris. El Índice de Moran arrojó un patrón aleatorio ($p=0.364$). Esto **sepulta el mito del spillover geográfico automático**. Estar físicamente al lado de un gigante industrial no garantiza un efecto contagio. El *upgrading* depende de las capacidades internas de cada empresa, no de su código postal.
 
